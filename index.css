@@ -19,15 +19,20 @@
     user-select: none;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Hide body scroll */
+}
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
-    overflow: hidden; /* Hide body scroll, let screens scroll */
-    width: 100vw;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: fixed; /* Prevent iOS rubber-banding */
 }
 
 /* Glassmorphism utility */
@@ -87,8 +92,6 @@ body {
     align-items: center;
     transition: opacity 0.4s ease, transform 0.4s ease;
     z-index: 10;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 .screen-hidden {
     opacity: 0;
@@ -263,22 +266,24 @@ body {
 }
 .mobile-controls:not(.hidden) { display: flex; }
 .d-pad {
-    position: relative; width: 150px; height: 150px; pointer-events: auto;
+    position: relative; width: 120px; height: 120px; pointer-events: auto;
 }
 .d-btn {
-    position: absolute; width: 50px; height: 50px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    position: absolute; width: 44px; height: 44px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
     border-radius: 50%; color: white; font-size: 1.2em; backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center; padding: 0; margin: 0;
 }
 .d-btn:active { background: rgba(255,255,255,0.4); }
-.d-btn.up { top: 0; left: 50px; }
-.d-btn.down { bottom: 0; left: 50px; }
-.d-btn.left { top: 50px; left: 0; }
-.d-btn.right { top: 50px; right: 0; }
-.mobile-abilities { display: flex; gap: 10px; pointer-events: auto; }
+.d-btn.up { top: 0; left: 38px; }
+.d-btn.down { bottom: 0; left: 38px; }
+.d-btn.left { top: 38px; left: 0; }
+.d-btn.right { top: 38px; right: 0; }
+.mobile-abilities { display: flex; flex-wrap: wrap; gap: 10px; pointer-events: auto; width: 110px; justify-content: flex-end; }
 .m-ab-btn {
     position: relative;
-    width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2);
-    font-size: 1.5em; backdrop-filter: blur(5px);
+    width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2);
+    font-size: 1.3em; backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center; padding: 0; margin: 0;
 }
 .m-ab-btn:active { background: rgba(255,255,255,0.2); }
 .m-ab-key {
@@ -363,16 +368,37 @@ body {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .screen { padding: 10px 0; align-items: flex-start; } /* Allow screens to scroll from top on mobile */
-    .shop-container, .htp-container, .leaderboard-container { margin-top: 20px; height: auto; max-height: none; }
+    .screen { padding: 0; }
+    .shop-container, .htp-container, .leaderboard-container, .login-container { 
+        width: 100%; height: 100%; max-width: 100%; max-height: 100%; 
+        margin: 0; border-radius: 0; padding: 10px; border: none;
+        display: flex; flex-direction: column;
+    }
+    .profile-section { width: 100%; }
     
-    .game-container { flex-direction: column; padding: 10px; align-items: center; justify-content: flex-start; }
-    .hud-panel { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: space-between; padding: 10px; gap: 10px; }
-    .hud-abilities { width: 100%; }
-    .ability-grid { display: none; } /* Hide on mobile, replaced by overlay buttons */
+    .game-container { 
+        flex-direction: column; padding: 5px; padding-bottom: 150px; 
+        align-items: stretch; justify-content: flex-start; gap: 5px; 
+    }
+    
+    .hud-panel { order: 1; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 10px; gap: 5px; }
+    .hud-top { flex: 1; min-width: 100%; margin-bottom: 5px; }
+    .hud-health { flex: 1; min-width: 100%; margin-bottom: 5px; }
+    .hud-map-info { display: none; } /* Hide map info on mobile to save space */
+    .hud-abilities { display: none; }
+    .ability-grid { display: none; } 
     .hud-abilities h3 { display: none; }
-    .hud-guide-panel { display: none; } /* Hide guide on mobile to save space */
-    .canvas-wrapper { width: 100%; max-width: 100%; flex: none; height: 50vh; min-height: 250px; }
+    .hud-guide-panel { display: none; } 
     
-    .missions-content, .shop-content, .htp-scroll-area, .lb-table-container { overflow-y: visible; }
+    .canvas-wrapper { order: 2; flex: 1; min-height: 0; max-height: none; width: 100%; }
+    
+    .mobile-controls { 
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        display: flex; padding: 15px; justify-content: space-between; align-items: flex-end;
+        z-index: 100; pointer-events: none;
+    }
+    
+    .missions-content, .shop-content, .htp-scroll-area, .lb-table-container { 
+        flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px;
+    }
 }
