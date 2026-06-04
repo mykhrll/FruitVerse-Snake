@@ -10,6 +10,7 @@ import { ScreenManager } from './ScreenManager.js';
 
 // Screens
 import { SplashScreen } from './screens/SplashScreen.js';
+import { LoginScreen } from './screens/LoginScreen.js';
 import { MenuScreen } from './screens/MenuScreen.js';
 import { GameScreen } from './screens/GameScreen.js';
 import { ShopScreen } from './screens/ShopScreen.js';
@@ -43,6 +44,7 @@ export class App {
         };
 
         registerScreen('splash', SplashScreen);
+        registerScreen('login', LoginScreen);
         registerScreen('menu', MenuScreen);
         registerScreen('game', GameScreen);
         registerScreen('shop', ShopScreen);
