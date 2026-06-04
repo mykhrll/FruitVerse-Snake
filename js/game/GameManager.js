@@ -48,6 +48,10 @@ export class GameManager {
         this.walls = generateWalls(this.cols, this.rows);
         this.abilityManager = new AbilityManager();
         
+        // Sync sizes to itemFactory so food spawns inside bounds
+        this.itemFactory.cols = this.cols;
+        this.itemFactory.rows = this.rows;
+        
         // Define skin colors based on string
         this.skinDef = this._parseSkinColor(skinColor);
         
