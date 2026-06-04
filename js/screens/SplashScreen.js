@@ -14,7 +14,7 @@ export class SplashScreen {
                 <h1 class="logo-text">FruitVerse</h1>
                 <h2 class="logo-subtext">SNAKE</h2>
                 <div class="loading-bar"><div class="loading-progress"></div></div>
-                <p class="tap-text">Tap anywhere to start</p>
+                <p class="tap-text" id="loadingText">Loading Profile...</p>
             </div>
         `;
 
@@ -24,18 +24,36 @@ export class SplashScreen {
         this.skipped = false;
     }
 
-    start() {
+    async start() {
         this.skipped = false;
         const progress = this.element.querySelector('.loading-progress');
+        const text = this.element.querySelector('#loadingText');
         progress.style.width = '0%';
         
-        // Just animate the loading bar to look like it's loading, then wait
-        setTimeout(() => { if (!this.skipped) progress.style.width = '100%'; }, 100);
-        
-        // Auto-skip after 3 seconds
-        this.timeout = setTimeout(() => {
-            this.skip();
-        }, 3000);
+        try {
+            // Load cloud profile
+            progress.style.width = '30%';
+            const playerName = this.app.storage.getPlayerName();
+            await this.app.storage.initCloudProfile(playerName);
+            
+            progress.style.width = '70%';
+            await this.app.storage.fetchGlobalDailyQuests();
+            
+            progress.style.width = '100%';
+            text.innerText = 'Tap anywhere to start';
+            
+            // Auto-skip after 2 seconds if loaded
+            this.timeout = setTimeout(() => {
+                this.skip();
+            }, 2000);
+        } catch (e) {
+            console.error("Firebase load error", e);
+            progress.style.width = '100%';
+            text.innerText = 'Offline Mode - Tap anywhere';
+            this.timeout = setTimeout(() => {
+                this.skip();
+            }, 3000);
+        }
     }
 
     skip() {
