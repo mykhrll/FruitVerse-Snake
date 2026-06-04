@@ -25,13 +25,30 @@ export class StorageManager {
         if (data) {
             if (data.coins !== undefined) this.save('coins', data.coins);
             if (data.diamonds !== undefined) this.save('diamonds', data.diamonds);
-            if (data.ownedSkins) this.save('ownedSkins', data.ownedSkins);
+            if (data.ownedSkins) {
+                const local = this.load('ownedSkins', ['classic_green']);
+                const merged = [...new Set([...local, ...data.ownedSkins])];
+                this.save('ownedSkins', merged);
+            }
             if (data.selectedSkin) this.save('selectedSkin', data.selectedSkin);
-            if (data.ownedShapes) this.save('ownedShapes', data.ownedShapes);
+            
+            if (data.ownedShapes) {
+                const local = this.load('ownedShapes', ['round']);
+                const merged = [...new Set([...local, ...data.ownedShapes])];
+                this.save('ownedShapes', merged);
+            }
             if (data.selectedShape) this.save('selectedShape', data.selectedShape);
+            
             if (data.stats) this.save('stats', data.stats);
             if (data.achievements) this.save('achievements', data.achievements);
-            if (data.dailyQuests) this.save('dailyQuests', data.dailyQuests);
+            
+            // For daily quests, we rely on fetchGlobalDailyQuests to merge, but we can load from profile here first
+            if (data.dailyQuests) {
+                const localData = this.load('dailyQuests', null);
+                if (!localData || data.dailyQuests.date === localData.date) {
+                    this.save('dailyQuests', data.dailyQuests);
+                }
+            }
         }
     }
 
@@ -75,9 +92,8 @@ export class StorageManager {
 
     async setPlayerName(name) {
         this.save('playerName', name);
-        if (this.playerName !== name) {
-            await this.initCloudProfile(name);
-        }
+        this.playerName = name; // Update it before calling initCloudProfile
+        await this.initCloudProfile(name); // Always force sync on login
     }
 
     getCoins() {
@@ -188,7 +204,20 @@ export class StorageManager {
             quests = shuffled.slice(0, 3).map(q => ({ ...q, progress: 0, completed: false, claimed: false }));
         }
         
-        // Save to local profile
+        // Merge with local progress to prevent overwriting user progress
+        const localData = this.load('dailyQuests', null);
+        if (localData && localData.date === today) {
+            quests.forEach(q => {
+                const lq = localData.quests.find(x => x.id === q.id);
+                if (lq) {
+                    q.progress = lq.progress;
+                    q.completed = lq.completed;
+                    q.claimed = lq.claimed;
+                }
+            });
+        }
+        
+        // Save to local profile (which also syncs to user's cloud profile)
         this.save('dailyQuests', { date: today, quests });
         return quests;
     }
