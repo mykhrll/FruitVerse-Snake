@@ -310,7 +310,7 @@ body {
 .shop-container { width: 90%; max-width: 800px; height: 90%; display: flex; flex-direction: column; padding: 20px; }
 .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;}
 .shop-coins { font-size: 1.5em; font-weight: bold; }
-.shop-content { flex: 1; overflow-y: auto; padding-right: 10px; min-height: min-content; }
+.shop-content { flex: 1; overflow-y: auto; padding-right: 10px; min-height: 0; }
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 10px; }
 .shop-card {
     background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px;
