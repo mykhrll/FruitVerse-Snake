@@ -4,11 +4,50 @@
 export class StorageManager {
     constructor(prefix = 'fruitverse_') {
         this.prefix = prefix;
+        this.playerName = this.load('playerName', 'Player');
+    }
+
+    _getDb() {
+        if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    async initCloudProfile(playerName) {
+        this.playerName = playerName;
+        const db = this._getDb();
+        if (!db) return;
+
+        const safeKey = playerName.replace(/[.#$\[\]]/g, '_');
+        const snap = await db.ref('users/' + safeKey).once('value');
+        const data = snap.val();
+        if (data) {
+            if (data.coins !== undefined) this.save('coins', data.coins);
+            if (data.diamonds !== undefined) this.save('diamonds', data.diamonds);
+            if (data.ownedSkins) this.save('ownedSkins', data.ownedSkins);
+            if (data.selectedSkin) this.save('selectedSkin', data.selectedSkin);
+            if (data.ownedShapes) this.save('ownedShapes', data.ownedShapes);
+            if (data.selectedShape) this.save('selectedShape', data.selectedShape);
+            if (data.stats) this.save('stats', data.stats);
+            if (data.achievements) this.save('achievements', data.achievements);
+            if (data.dailyQuests) this.save('dailyQuests', data.dailyQuests);
+        }
+    }
+
+    _syncToCloud(key, data) {
+        const db = this._getDb();
+        if (!db || !this.playerName) return;
+        const safeKey = this.playerName.replace(/[.#$\[\]]/g, '_');
+        db.ref(`users/${safeKey}/${key}`).set(data);
     }
 
     save(key, data) {
         try {
             localStorage.setItem(this.prefix + key, JSON.stringify(data));
+            if (key !== 'playerName' && key !== 'leaderboard') {
+                this._syncToCloud(key, data);
+            }
         } catch (e) {
             console.warn('StorageManager: Failed to save', key, e);
         }
@@ -31,11 +70,14 @@ export class StorageManager {
     // ---- Convenience methods ----
 
     getPlayerName() {
-        return this.load('playerName', 'Player');
+        return this.playerName;
     }
 
-    setPlayerName(name) {
+    async setPlayerName(name) {
         this.save('playerName', name);
+        if (this.playerName !== name) {
+            await this.initCloudProfile(name);
+        }
     }
 
     getCoins() {
@@ -53,6 +95,7 @@ export class StorageManager {
 
     addCoins(val) {
         this.setCoins(this.getCoins() + val);
+        if (val > 0) this.addStat('totalCoins', val);
     }
 
     getOwnedSkins() {
@@ -112,32 +155,53 @@ export class StorageManager {
         this.save('stats', stats);
     }
     
-    getDailyQuests() {
-        const data = this.load('dailyQuests', null);
+    async fetchGlobalDailyQuests() {
+        const db = this._getDb();
         const today = new Date().toDateString();
         
-        // If no quests or it's a new day, generate new ones
-        if (!data || data.date !== today) {
-            return this.generateDailyQuests(today);
-        }
-        return data.quests;
-    }
-    
-    generateDailyQuests(today) {
-        // Generate random quests
         const templates = [
             { id: 'q1', title: 'Makan 20 Makanan', target: 20, type: 'totalFood', reward: 15 },
             { id: 'q2', title: 'Main 3 Kali', target: 3, type: 'totalMatches', reward: 10 },
             { id: 'q3', title: 'Gunakan Kekuatan 5 Kali', target: 5, type: 'totalAbilities', reward: 20 },
-            { id: 'q4', title: 'Makan 50 Makanan', target: 50, type: 'totalFood', reward: 30 }
+            { id: 'q4', title: 'Makan 50 Makanan', target: 50, type: 'totalFood', reward: 30 },
+            { id: 'q5', title: 'Gunakan Kekuatan 10 Kali', target: 10, type: 'totalAbilities', reward: 40 },
+            { id: 'q6', title: 'Main 5 Kali', target: 5, type: 'totalMatches', reward: 25 },
+            { id: 'q7', title: 'Makan 100 Makanan', target: 100, type: 'totalFood', reward: 50 },
         ];
+
+        let quests = [];
+
+        if (db) {
+            const snap = await db.ref('global/dailyQuests').once('value');
+            const data = snap.val();
+            
+            if (data && data.date === today) {
+                quests = data.quests;
+            } else {
+                // Generate new
+                const shuffled = templates.sort(() => 0.5 - Math.random());
+                quests = shuffled.slice(0, 3).map(q => ({ ...q, progress: 0, completed: false, claimed: false }));
+                db.ref('global/dailyQuests').set({ date: today, quests });
+            }
+        } else {
+            const shuffled = templates.sort(() => 0.5 - Math.random());
+            quests = shuffled.slice(0, 3).map(q => ({ ...q, progress: 0, completed: false, claimed: false }));
+        }
         
-        // Pick 3 unique random quests
-        const shuffled = templates.sort(() => 0.5 - Math.random());
-        const quests = shuffled.slice(0, 3).map(q => ({ ...q, progress: 0, completed: false, claimed: false }));
-        
+        // Save to local profile
         this.save('dailyQuests', { date: today, quests });
         return quests;
+    }
+    
+    getDailyQuests() {
+        const data = this.load('dailyQuests', null);
+        const today = new Date().toDateString();
+        
+        if (!data || data.date !== today) {
+            // Need async fetch, but return empty for now, UI should await fetchGlobalDailyQuests
+            return [];
+        }
+        return data.quests;
     }
     
     updateDailyQuestProgress(type, amount) {
