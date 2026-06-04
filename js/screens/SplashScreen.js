@@ -24,36 +24,19 @@ export class SplashScreen {
         this.skipped = false;
     }
 
-    async start() {
+    start() {
         this.skipped = false;
         const progress = this.element.querySelector('.loading-progress');
         const text = this.element.querySelector('#loadingText');
         progress.style.width = '0%';
+        text.innerText = 'FruitVerse Engine Loading...';
         
-        try {
-            // Load cloud profile
-            progress.style.width = '30%';
-            const playerName = this.app.storage.getPlayerName();
-            await this.app.storage.initCloudProfile(playerName);
-            
-            progress.style.width = '70%';
-            await this.app.storage.fetchGlobalDailyQuests();
-            
-            progress.style.width = '100%';
-            text.innerText = 'Tap anywhere to start';
-            
-            // Auto-skip after 2 seconds if loaded
-            this.timeout = setTimeout(() => {
-                this.skip();
-            }, 2000);
-        } catch (e) {
-            console.error("Firebase load error", e);
-            progress.style.width = '100%';
-            text.innerText = 'Offline Mode - Tap anywhere';
-            this.timeout = setTimeout(() => {
-                this.skip();
-            }, 3000);
-        }
+        setTimeout(() => { if (!this.skipped) progress.style.width = '100%'; }, 100);
+        
+        // Auto-skip after 2 seconds
+        this.timeout = setTimeout(() => {
+            this.skip();
+        }, 2000);
     }
 
     skip() {
@@ -61,7 +44,7 @@ export class SplashScreen {
         this.skipped = true;
         if (this.timeout) clearTimeout(this.timeout);
         
-        this.sm.showScreen('menu');
-        this.app.soundManager.playMenuBgm();
+        this.sm.showScreen('login');
+        // bgm started on login screen or menu, we can just let login be silent
     }
 }
