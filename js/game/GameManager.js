@@ -70,7 +70,7 @@ export class GameManager {
             case 'flame_red':  return { colors: ['#ef5350', '#c62828'] };
             case 'royal_purple': return { colors: ['#ab47bc', '#6a1b9a'] };
             case 'golden':     return { colors: ['#ffd54f', '#f57f17'] };
-            case 'rainbow':    return { colors: ['#ff0000', '#00ff00', '#0000ff'] }; // Special handled in draw maybe
+            case 'rainbow':    return { colors: ['rainbow'] };
             case 'classic_green':
             default:           return { colors: ['#4caf50', '#2e7d32'] };
         }
