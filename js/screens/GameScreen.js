@@ -197,11 +197,24 @@ export class GameScreen {
         
         // Calculate dynamic cols/rows based on container size
         const wrapper = this.element.querySelector('.canvas-wrapper');
-        const targetCellSize = 25; // Ideal size
+        const isMob = this.app.screenUtil.isMobile();
+        const targetCellSize = isMob ? 16 : 25; // Smaller cells on mobile = more space
+        
         this.cols = Math.floor(wrapper.clientWidth / targetCellSize) || 40;
         this.rows = Math.floor(wrapper.clientHeight / targetCellSize) || 25;
 
+        // Ensure minimum grid size so snake doesn't get trapped immediately
+        this.cols = Math.max(this.cols, 20);
+        this.rows = Math.max(this.rows, 15);
+
         this.gameManager.init(this.cols, this.rows, mapType, skinColor, skinShape);
+        
+        // Slow down slightly on mobile to improve touch control handling
+        if (isMob) {
+            this.gameManager.baseTickInterval = 140; 
+        } else {
+            this.gameManager.baseTickInterval = 120;
+        }
         this.mapRenderer.cols = this.cols;
         this.mapRenderer.rows = this.rows;
         
