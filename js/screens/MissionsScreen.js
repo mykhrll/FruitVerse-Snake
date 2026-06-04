@@ -119,7 +119,11 @@ export class MissionsScreen {
             { id: 'a1', title: 'Pemula', desc: 'Main 10 Kali', target: 10, type: 'totalMatches', reward: 1 },
             { id: 'a2', title: 'Rakus', desc: 'Makan 500 Makanan', target: 500, type: 'totalFood', reward: 2 },
             { id: 'a3', title: 'Penguasa Waktu', desc: 'Gunakan Kekuatan 100 Kali', target: 100, type: 'totalAbilities', reward: 3 },
-            { id: 'a4', title: 'Veteran', desc: 'Main 100 Kali', target: 100, type: 'totalMatches', reward: 5 }
+            { id: 'a4', title: 'Veteran', desc: 'Main 100 Kali', target: 100, type: 'totalMatches', reward: 5 },
+            { id: 'a5', title: 'Sultan', desc: 'Kumpulkan 1000 Koin', target: 1000, type: 'totalCoins', reward: 10 },
+            { id: 'a6', title: 'Ular Hit', desc: 'Main 500 Kali', target: 500, type: 'totalMatches', reward: 15 },
+            { id: 'a7', title: 'Master Kekuatan', desc: 'Gunakan Kekuatan 500 Kali', target: 500, type: 'totalAbilities', reward: 20 },
+            { id: 'a8', title: 'Raja Buah', desc: 'Makan 5000 Makanan', target: 5000, type: 'totalFood', reward: 30 }
         ];
 
         let html = '';
