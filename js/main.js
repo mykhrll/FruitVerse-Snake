@@ -10,9 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Prevent default context menu for games
     document.addEventListener('contextmenu', e => e.preventDefault());
     
-    // Prevent default scrolling on mobile when swiping
+    // Prevent default scrolling on mobile when swiping the canvas, but allow it on scrollable elements
     document.addEventListener('touchmove', e => {
-        if (e.target.tagName !== 'INPUT') { // allow scroll if needed, but mostly prevent
+        // Find if the touch is inside a scrollable area
+        const isScrollable = e.target.closest('.missions-content, .shop-content, .htp-scroll-area, .lb-table-container');
+        if (!isScrollable && e.target.tagName !== 'INPUT') { 
             e.preventDefault();
         }
     }, { passive: false });
