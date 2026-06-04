@@ -84,7 +84,14 @@ export class Snake {
 
             // Gradient color from head to tail
             const t = this.body.length > 1 ? i / (this.body.length - 1) : 0;
-            const color = isHead ? colors[0] : this._lerpColor(colors[0], colors[1] || colors[0], t);
+            let color;
+            if (colors[0] === 'rainbow') {
+                // HSL Rainbow: Hue from 0 (Red) to 360 (Red again), mapped over length
+                const hue = (Date.now() / 10 + i * 15) % 360;
+                color = `hsl(${hue}, 100%, 50%)`;
+            } else {
+                color = isHead ? colors[0] : this._lerpColor(colors[0], colors[1] || colors[0], t);
+            }
 
             ctx.fillStyle = color;
 
