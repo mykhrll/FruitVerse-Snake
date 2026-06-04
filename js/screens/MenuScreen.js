@@ -21,7 +21,7 @@ export class MenuScreen {
                             <div class="css-snake-tongue"></div>
                         </div>
                     </div>
-                    <input type="text" id="playerNameInput" class="player-name-input" maxlength="15" title="Click to edit name" placeholder="Player">
+                    <div id="displayPlayerName" style="color: white; font-size: 1.2em; font-weight: bold; margin-top: 5px;">Player</div>
                 </div>
                 
                 <div class="logo-area">
@@ -40,7 +40,7 @@ export class MenuScreen {
             </div>
         `;
 
-        this.nameInput = this.element.querySelector('#playerNameInput');
+        this.displayName = this.element.querySelector('#displayPlayerName');
         this._initParticles();
         
         // Bind buttons
@@ -79,12 +79,7 @@ export class MenuScreen {
             }
         });
 
-        // Name input logic
-        this.nameInput.addEventListener('change', (e) => {
-            const newName = e.target.value.trim() || 'Player';
-            this.nameInput.value = newName;
-            this.app.storage.setPlayerName(newName);
-        });
+        // Name input logic moved to LoginScreen
     }
 
     _initParticles() {
@@ -102,7 +97,7 @@ export class MenuScreen {
     }
 
     onEnter() {
-        this.nameInput.value = this.app.storage.getPlayerName();
+        this.displayName.innerText = this.app.storage.getPlayerName();
         this.app.soundManager.playMenuBgm();
     }
 }
